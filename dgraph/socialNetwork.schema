@@ -1,0 +1,119 @@
+type tag{
+	fqid
+	id
+	name
+	url
+	hasType
+}
+
+type comment{
+	fqid
+	locationIP
+	browserUsed
+	content
+	length
+	id
+	creationDate
+	hasTag
+	hasCreator
+	isLocatedIn
+	replyOf
+}
+
+type forum{
+	fqid
+	id
+	title
+	creationDate
+	containerOf
+	hasMember
+	hasTag
+	hasModerator
+}
+
+type post{
+	fqid
+	locationIP
+	browserUsed
+	language
+	content
+	length
+	hasTag
+	id
+	hasCreator
+	isLocatedIn
+    imageFile
+}
+
+type person{
+	fqid
+	id
+	firstName
+	lastName
+	gender
+	birthday
+	creationDate
+	browserUsed
+	containerOf
+	locationIP
+	hasInterest
+    isLocatedIn
+	likes
+	workAt
+	email
+	language
+    studyAt
+    knows
+}
+
+type organization{
+	fqid
+	id
+	type
+	name
+	url
+	isLocatedIn
+}
+
+type place{
+	fqid
+	id
+	type
+	name
+	url
+	isPartOf
+}
+
+fqid                : string @index(hash) .
+id                  : int @index(int).
+name                : string @index(hash) .
+url                 : string .
+hasType             : uid @reverse .
+locationIP          : string .
+browserUsed         : string @index(exact) .
+content             : string .
+length              : int .
+creationDate        : dateTime @index(day) .
+hasTag              : [uid] @reverse .
+hasCreator          : [uid] @reverse .
+isLocatedIn         : [uid] .
+replyOf             : uid @reverse .
+title               : string @index(exact) .
+containerOf         : [uid] @reverse .
+hasMember           : [uid] @reverse .
+hasModerator        : [uid] @reverse .
+language            : [string] .
+firstName           : string @index(hash) .
+lastName            : string @index(hash) .
+gender              : string .
+birthday            : dateTime @index(year) .
+hasInterest         : [uid] .
+likes               : [uid] @reverse .
+workAt              : [uid] .
+studyAt             : [uid] .
+knows               : [uid] @reverse .
+email               : [string] .
+type                : string .
+imageFile           : string .
+isPartOf            : [uid] .
+isSubclassOf		: [uid] @reverse .
