@@ -4,7 +4,7 @@ type User {
     firstName: String! @search(by:[fulltext, term])
     knows: [User]
     hasInterest: [Tag]
-    creator: [Post]
+    creator: [Post] @hasInverse(field: hasCreator)
 }
 type Tag {
     id: ID!
@@ -24,15 +24,6 @@ type Comment {
     createdAt: Int!
     hasCreator: User!
     post: Post!
-}
-
-type Mutation {
-    newComment(
-        content: String!
-        post: ID!
-        user: ID!
-        time: Int!
-    ): String! @lambda
 }
 
 enum ReactionType{
@@ -63,6 +54,24 @@ type Reaction  @withSubscription @auth(
     user: User!
 }
 type Query{
+	queryDegreeOfSeparation(userAemail : String!, userBemail: String!) : [User] @custom(
+        dql:"""
+        query q($userAemail : string, $userBemail: string){
+            uidA as var(func: type(User)) @filter(eq(User.email, $userAemail))
+            uidB as var(func: type(User)) @filter(eq(User.email, $userBemail))
+            path as shortest(from: uid(uidA), to: uid(uidB)){
+                User.knows
+            }
+            queryDegreeOfSeparation(func: uid(path)){
+                id: uid
+                firstName: User.firstName
+                lastName: User.lastName
+                email: User.email
+                gender: User.gender
+            }
+        }"""
+    )
+
     queryUserTimeline(userEmail: String!): [Post] @custom(
     dql:"""
 		query q($userEmail: string){
@@ -95,27 +104,19 @@ type Query{
       title: Post.title
       score: val(score)
     }
-    
   }
 """
   )
-  	queryDegreeOfSeparation(userAemail : String!, userBemail: String!) : [User] @custom(
-        dql:"""
-        query q($userAemail : string, $userBemail: string){
-            uidA as var(func: type(User)) @filter(eq(User.email, $userAemail))
-            uidB as var(func: type(User)) @filter(eq(User.email, $userBemail))
-            path as shortest(from: uid(uidA), to: uid(uidB)){
-                User.knows
-            }
-            queryDegreeOfSeparation(func: uid(path)){
-                id: uid
-                firstName: User.firstName
-                lastName: User.lastName
-                email: User.email
-                gender: User.gender
-            }
-        }"""
-    )
 }
+
+type Mutation {
+    newComment(
+        content: String!
+        post: ID!
+        user: ID!
+        time: Int!
+    ): String! @lambda
+}
+
 
 # Dgraph.Authorization  {"VerificationKey":"secret","Header":"Authorization","Namespace":"https://dgraph.io/jwt/claims","Algo":"HS256"}
