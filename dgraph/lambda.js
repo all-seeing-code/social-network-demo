@@ -13,9 +13,9 @@ async function newComment({args, graphql}) {
         }
     }`, {
         "content": args.content,
-        "post": args.post,
-        "user": args.user,
-        "time": args.time,
+        "post": args.postId,
+        "user": args.userId,
+        "time": args.timestamp,
     })
     console.log("comment created. now sending out email to ", results.data.addComment.comment[0].hasCreator.email)
     return results.data.addComment.comment[0].id

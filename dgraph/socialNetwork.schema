@@ -112,9 +112,9 @@ type Query{
 type Mutation {
     newComment(
         content: String!
-        post: ID!
-        user: ID!
-        time: Int!
+        postId: ID!
+        userId: ID!
+        timestamp: Int!
     ): String! @lambda
 }
 
