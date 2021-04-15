@@ -1,119 +1,121 @@
-type tag{
-	fqid
-	id
-	name
-	url
-	hasType
+type User {
+    id: ID!
+    email: String! @id
+    firstName: String! @search(by:[fulltext, term])
+    knows: [User]
+    hasInterest: [Tag]
+    creator: [Post]
+}
+type Tag {
+    id: ID!
+    name: String! @id
+}
+type Post {
+    id: ID!
+    title: String!
+    content: String @search(by:[term])
+    hasTag: [Tag!]!
+    hasCreator: User!
+  	score: Float
+}
+type Comment {
+    id: ID!
+    content: String! @id
+    createdAt: Int!
+    hasCreator: User!
+    post: Post!
 }
 
-type comment{
-	fqid
-	locationIP
-	browserUsed
-	content
-	length
-	id
-	creationDate
-	hasTag
-	hasCreator
-	isLocatedIn
-	replyOf
+type Mutation {
+    newComment(
+        content: String!
+        post: ID!
+        user: ID!
+        time: Int!
+    ): String! @lambda
 }
 
-type forum{
-	fqid
-	id
-	title
-	creationDate
-	containerOf
-	hasMember
-	hasTag
-	hasModerator
+enum ReactionType{
+    like
+    support
+    celebrate
+}
+type Reaction  @withSubscription @auth(
+    query : { rule: """
+        query ($USER: ID!){
+                queryReaction{
+                    post{
+                    hasCreator(filter:{
+                    id: [$USER]
+                    }){
+                        __typename
+                    }
+                    __typename
+                }
+            }
+        }"""
+    }
+){
+  	id: ID!
+    reaction: ReactionType!
+    createdAt: Int!
+    post: Post!
+    user: User!
+}
+type Query{
+    queryUserTimeline(userEmail: String!): [Post] @custom(
+    dql:"""
+		query q($userEmail: string){
+    pid as var(func: type(User))@filter(eq( User.email, $userEmail))
+  	var(func: uid(pid)){
+      friends as User.knows{
+      	uid
+      	User.firstName
+    	}
+    	tagsOfInterest as User.hasInterest{
+    		Tag.name
+    		uid
+  		}
+    }
+  	var(func: type(Post))@filter(uid_in(Post.hasTag, uid(tagsOfInterest))){
+    	friendsScoreWithInterest as count(Post.hasCreator) @filter(uid(friends))	
+  	}
+  	var(func: type(Post))@filter(NOT uid_in(Post.hasTag, uid(tagsOfInterest))){
+    	friendsScoreWithoutInterest as count(Post.hasCreator) @filter(uid(friends))	
+  	}
+  	var(func: type(Post))@filter( uid_in(Post.hasTag, uid(tagsOfInterest))){
+    	InterestScore as count(Post.hasCreator) @filter(NOT uid(friends))	
+  	}
+  	var(func: type(Post)){
+      # Post.title
+      score as math(friendsScoreWithInterest + InterestScore*0.8 +  friendsScoreWithoutInterest*0.5)
+    }
+    queryUserTimeline(func: type(Post), orderdesc: val(score)){
+      id: uid
+      title: Post.title
+      score: val(score)
+    }
+    
+  }
+"""
+  )
+  	queryDegreeOfSeparation(userAemail : String!, userBemail: String!) : [User] @custom(
+        dql:"""
+        query q($userAemail : string, $userBemail: string){
+            uidA as var(func: type(User)) @filter(eq(User.email, $userAemail))
+            uidB as var(func: type(User)) @filter(eq(User.email, $userBemail))
+            path as shortest(from: uid(uidA), to: uid(uidB)){
+                User.knows
+            }
+            queryDegreeOfSeparation(func: uid(path)){
+                id: uid
+                firstName: User.firstName
+                lastName: User.lastName
+                email: User.email
+                gender: User.gender
+            }
+        }"""
+    )
 }
 
-type post{
-	fqid
-	locationIP
-	browserUsed
-	language
-	content
-	length
-	hasTag
-	id
-	hasCreator
-	isLocatedIn
-    imageFile
-}
-
-type person{
-	fqid
-	id
-	firstName
-	lastName
-	gender
-	birthday
-	creationDate
-	browserUsed
-	containerOf
-	locationIP
-	hasInterest
-    isLocatedIn
-	likes
-	workAt
-	email
-	language
-    studyAt
-    knows
-}
-
-type organization{
-	fqid
-	id
-	type
-	name
-	url
-	isLocatedIn
-}
-
-type place{
-	fqid
-	id
-	type
-	name
-	url
-	isPartOf
-}
-
-fqid                : string @index(hash) .
-id                  : int @index(int).
-name                : string @index(hash) .
-url                 : string .
-hasType             : uid @reverse .
-locationIP          : string .
-browserUsed         : string @index(exact) .
-content             : string .
-length              : int .
-creationDate        : dateTime @index(day) .
-hasTag              : [uid] @reverse .
-hasCreator          : [uid] @reverse .
-isLocatedIn         : [uid] .
-replyOf             : uid @reverse .
-title               : string @index(exact) .
-containerOf         : [uid] @reverse .
-hasMember           : [uid] @reverse .
-hasModerator        : [uid] @reverse .
-language            : [string] .
-firstName           : string @index(hash) .
-lastName            : string @index(hash) .
-gender              : string .
-birthday            : dateTime @index(year) .
-hasInterest         : [uid] .
-likes               : [uid] @reverse .
-workAt              : [uid] .
-studyAt             : [uid] .
-knows               : [uid] @reverse .
-email               : [string] .
-type                : string .
-imageFile           : string .
-isPartOf            : [uid] .
-isSubclassOf		: [uid] @reverse .
+# Dgraph.Authorization  {"VerificationKey":"secret","Header":"Authorization","Namespace":"https://dgraph.io/jwt/claims","Algo":"HS256"}

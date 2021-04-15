@@ -1,0 +1,103 @@
+{
+  set
+  {
+        _:a <dgraph.type> "User".
+        _:a <User.firstName> "Mike" .
+        _:a <User.email> "mike@dgraph.io" .
+        _:a <User.knows> _:c .
+        _:a <User.knows> _:b .
+        _:a <User.hasInterest> _:f1 .
+        _:a <User.hasInterest> _:f2 .
+        _:a <User.hasInterest> _:f3 .
+
+        _:b <dgraph.type> "User" .
+        _:b <User.firstName> "Robert" .
+        _:b <User.email> "robert@dgraph.io" .
+        _:b <User.hasInterest> _:f1 .
+        _:b <User.hasInterest> _:f4 .
+
+        _:c <dgraph.type> "User" .
+        _:c <User.firstName> "Paul" .
+        _:c <User.email> "paul@dgraph.io" .
+        _:c <User.knows> _:d .
+        _:c <User.knows> _:e .
+        _:c <User.hasInterest> _:f4 .
+        _:c <User.hasInterest> _:f2 .
+        _:c <User.hasInterest> _:g4 .
+
+        _:d <dgraph.type> "User" .
+        _:d <User.firstName> "Ron" .
+        _:d <User.email> "ron@dgraph.io" .
+        _:d <User.knows> _:b .
+        _:d <User.hasInterest> _:g1 .
+        _:d <User.hasInterest> _:g2 .
+        _:d <User.hasInterest> _:g3 .
+
+        _:e <dgraph.type> "User" .
+        _:e <User.firstName> "Hena"  .
+        _:e <User.email> "hena@dgraph.io" .
+        _:e <User.hasInterest> _:f1 .
+        _:e <User.hasInterest> _:g2 .
+
+        _:f1 <dgraph.type> "Tag" .
+        _:f1 <Tag.name> "Music" .
+        _:f2 <dgraph.type> "Tag" .
+        _:f2 <Tag.name> "Movies" .
+
+        _:f3 <dgraph.type> "Tag" .
+        _:f3 <Tag.name> "Podcasts" .
+
+        _:f4 <dgraph.type> "Tag" .
+        _:f4 <Tag.name> "Soccer" .
+
+        _:g1 <dgraph.type> "Tag" .
+        _:g1 <Tag.name> "Harry Potter" .
+
+        _:g2 <dgraph.type> "Tag" .
+        _:g2 <Tag.name> "Finance" .
+
+        _:g3 <dgraph.type> "Tag" .
+        _:g3 <Tag.name> "News" .
+
+        _:g4 <dgraph.type> "Tag" .
+        _:g4 <Tag.name> "Politics" .
+
+        _:p1 <dgraph.type> "Post" .
+        _:p1 <Post.title> "Taylor Swift release new album." .
+        _:p1 <Post.hasTag> _:f1 .
+        _:p1 <Post.hasTag> _:f2 .
+        _:p1 <Post.hasCreator> _:a .
+
+        _:p2 <dgraph.type> "Post" .
+        _:p2 <Post.title> "Ronaldo Scores!" .
+        _:p2 <Post.hasTag> _:f4 .
+        _:p2 <Post.hasCreator> _:a .
+
+        _:p3 <dgraph.type> "Post" .
+        _:p3 <Post.title> "Avengers-Endgame Soundtrack" .
+        _:p3 <Post.hasTag> _:f1 .
+        _:p3 <Post.hasTag> _:f2 .
+        _:p3 <Post.hasCreator> _:b .
+
+        _:p4 <dgraph.type> "Post" .
+        _:p4 <Post.title> "Daniel Radcliff Starrer" .
+        _:p4 <Post.hasTag> _:g1 .
+        _:p4 <Post.hasCreator> _:b .
+
+        _:p5 <dgraph.type> "Post" .
+        _:p5 <Post.title> "US Elections Update" .
+        _:p5 <Post.hasTag> _:g4 .
+        _:p5 <Post.hasCreator> _:c .
+
+        _:p6 <dgraph.type> "Post" .
+        _:p6 <Post.title> "Best musical podcast" .
+        _:p6 <Post.hasTag> _:f1 .
+        _:p6 <Post.hasTag> _:f3 .
+        _:p6 <Post.hasCreator> _:d .
+
+        _:p7 <dgraph.type> "Post" .
+        _:p7 <Post.title> "Times News Bulletin" .
+        _:p7 <Post.hasTag> _:g3 .
+        _:p7 <Post.hasCreator> _:e .
+  }
+}
